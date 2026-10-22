@@ -4,8 +4,8 @@ echo ========================================================
 echo        MEMBUKA WEBSITE KASIR FROZEN DI BROWSER
 echo ========================================================
 echo.
-echo Membuka web\index.html...
-start "" "%~dp0web\index.html"
+echo Membuka index.html...
+start "" "%~dp0index.html"
 echo.
 echo Website Kasir Frozen berhasil dibuka di browser!
 echo ========================================================

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kasir Frozen - Web Point of Sales & Manajemen Produk</title>
+  <link rel="stylesheet" href="web/css/style.css">
+</head>
+<body>
+
+  <!-- HEADER UTAMA -->
+  <header class="main-header">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-badge">FROZEN POS</div>
+        <div class="brand-text">
+          <h1>Kasir Frozen</h1>
+          <p>Spesialis Makanan Beku & Minuman Dingin</p>
+        </div>
+      </div>
+      <nav class="nav-tabs">
+        <button type="button" class="tab-btn active" data-tab="pos-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Point of Sales (Kasir)
+        </button>
+        <button type="button" class="tab-btn" data-tab="crud-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-7L11 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+          Kelola Produk (CRUD)
+        </button>
+        <button type="button" class="tab-btn" data-tab="history-view">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Riwayat Struk
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTAINER UTAMA -->
+  <main class="main-container">
+
+    <!-- ========================================================
+         VIEW 1: POINT OF SALES (KASIR)
+    ======================================================== -->
+    <section id="pos-view" class="view-panel active">
+      <div class="pos-grid">
+        
+        <!-- KOLOM KIRI: KATALOG PRODUK -->
+        <div class="catalog-section">
+          <div class="catalog-toolbar">
+            <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="posSearchInput" placeholder="Cari kode atau nama produk...">
+            </div>
+            <div class="category-filters">
+              <button type="button" class="filter-btn active" data-category="ALL">Semua</button>
+              <button type="button" class="filter-btn" data-category="Makanan">Frozen Food</button>
+              <button type="button" class="filter-btn" data-category="Minuman">Es & Minuman</button>
+            </div>
+          </div>
+
+          <div class="products-grid" id="posProductsContainer">
+            <!-- Kartu produk di-render secara dinamis oleh JavaScript -->
+          </div>
+        </div>
+
+        <!-- KOLOM KANAN: KERANJANG & PEMBAYARAN -->
+        <aside class="cart-section">
+          <div class="cart-card">
+            <div class="cart-header">
+              <h2>Keranjang Belanja</h2>
+              <button type="button" class="btn-text-danger" id="btnResetCart">Kosongkan</button>
+            </div>
+
+            <!-- TABEL DAFTAR ITEM KERANJANG -->
+            <div class="cart-items-wrapper">
+              <table class="cart-table" id="cartTable">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="cartTableBody">
+                  <!-- Baris item dinamis -->
+                </tbody>
+              </table>
+              <div class="empty-cart-state" id="emptyCartMessage">
+                <p>Keranjang masih kosong</p>
+                <small>Klik salah satu produk di katalog untuk menambahkan.</small>
+              </div>
+            </div>
+
+            <!-- RINCIAN HARGA & DISKON (POLIMORFISME) -->
+            <div class="cart-summary">
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="summarySubtotal">Rp 0</span>
+              </div>
+              <div class="summary-row promo-row" id="promoRow" style="display: none;">
+                <span>Diskon Promo</span>
+                <span id="summaryDiskon">- Rp 0</span>
+              </div>
+              <div class="summary-row">
+                <span>Pajak (PB1 / Resto)</span>
+                <span id="summaryPajak">+ Rp 0</span>
+              </div>
+              <div class="summary-row total-row">
+                <span>Grand Total</span>
+                <span class="total-nominal" id="summaryGrandTotal">Rp 0</span>
+              </div>
+            </div>
+
+            <!-- FORM PEMBAYARAN -->
+            <div class="payment-area">
+              <label for="inputUangBayar" class="payment-label">Nominal Pembayaran (Rp):</label>
+              <div class="payment-input-wrapper">
+                <span class="currency-prefix">Rp</span>
+                <input type="number" id="inputUangBayar" placeholder="0" min="0">
+              </div>
+
+              <!-- Tombol Cepat Pecahan Uang -->
+              <div class="quick-cash-row">
+                <button type="button" class="btn-quick-cash" id="btnCashExact">Uang Pas</button>
+                <button type="button" class="btn-quick-cash" data-amount="50000">50k</button>
+                <button type="button" class="btn-quick-cash" data-amount="100000">100k</button>
+                <button type="button" class="btn-quick-cash" data-amount="200000">200k</button>
+              </div>
+
+              <!-- Baris Kembalian -->
+              <div class="change-row">
+                <span>Kembalian:</span>
+                <strong id="labelKembalian">Rp 0</strong>
+              </div>
+
+              <!-- Tombol Checkout -->
+              <button type="button" class="btn-checkout" id="btnCheckout" disabled>
+                Proses Bayar & Cetak Struk
+              </button>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 2: KELOLA PRODUK (CRUD)
+    ======================================================== -->
+    <section id="crud-view" class="view-panel">
+      <div class="crud-layout">
+
+        <!-- FORM CRUD -->
+        <div class="crud-form-card">
+          <div class="card-header">
+            <h2 id="formCrudTitle">Tambah Produk Baru</h2>
+            <button type="button" class="btn-secondary btn-sm" id="btnResetForm">Reset Form</button>
+          </div>
+          <form id="productCrudForm">
+            <input type="hidden" id="editIndex" value="-1">
+
+            <div class="form-group">
+              <label for="formKode">Kode Produk</label>
+              <input type="text" id="formKode" placeholder="Contoh: FRZ06" required>
+            </div>
+
+            <div class="form-group">
+              <label for="formNama">Nama Produk</label>
+              <input type="text" id="formNama" placeholder="Contoh: Nugget Ikan Crispy 500g" required>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-half">
+                <label for="formKategori">Kategori</label>
+                <select id="formKategori" required>
+                  <option value="Makanan">Frozen Food (Makanan)</option>
+                  <option value="Minuman">Es & Minuman Dingin</option>
+                </select>
+              </div>
+              <div class="form-group col-half">
+                <label for="formStok">Jumlah Stok</label>
+                <input type="number" id="formStok" min="0" value="20" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="formHarga">Harga Satuan (Rp)</label>
+              <input type="number" id="formHarga" min="100" step="500" placeholder="Contoh: 35000" required>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" id="formOpsiKhusus">
+                <span id="labelOpsiKhusus">Varian Pedas</span>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="btnSubmitProduct">Simpan Produk</button>
+              <button type="button" class="btn-danger" id="btnDeleteSelected" style="display: none;">Hapus Produk</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- TABEL DATA PRODUK -->
+        <div class="crud-table-card">
+          <div class="card-header">
+            <h2>Daftar Produk Kasir Frozen</h2>
+            <div class="table-search">
+              <input type="text" id="crudSearchInput" placeholder="Saring produk...">
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="crudTable">
+              <thead>
+                <tr>
+                  <th>Kode</th>
+                  <th>Nama Produk</th>
+                  <th>Kategori</th>
+                  <th>Harga Satuan</th>
+                  <th>Stok</th>
+                  <th>Keterangan / Opsi</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="crudTableBody">
+                <!-- Baris tabel produk di-generate via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================================
+         VIEW 3: RIWAYAT TRANSAKSI
+    ======================================================== -->
+    <section id="history-view" class="view-panel">
+      <div class="history-card">
+        <div class="card-header">
+          <h2>Riwayat Transaksi Penjualan</h2>
+          <span class="badge-total" id="historyCount">0 Transaksi Selesai</span>
+        </div>
+        <div class="table-responsive">
+          <table class="data-table" id="historyTable">
+            <thead>
+              <tr>
+                <th>No. Transaksi</th>
+                <th>Waktu</th>
+                <th>Total Item</th>
+                <th>Grand Total</th>
+                <th>Uang Bayar</th>
+                <th>Kembalian</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <!-- Riwayat dinamis -->
+            </tbody>
+          </table>
+          <div class="empty-state" id="emptyHistoryMessage">
+            <p>Belum ada riwayat transaksi</p>
+            <small>Transaksi yang selesai di Kasir akan tercatat secara otomatis di sini.</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL STRUK PEMBAYARAN THERMAL -->
+  <div class="modal-backdrop" id="modalStruk">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Struk Transaksi Pembayaran</h3>
+        <button type="button" class="btn-close" id="btnCloseModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <pre class="thermal-receipt" id="receiptTextContainer"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="btnCopyReceipt">Salin Teks</button>
+        <button type="button" class="btn-primary" id="btnPrintReceipt">Cetak Struk</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <span>Kasir Frozen &copy; 2026 &bull; Aplikasi Kasir &amp; Point of Sales Berorientasi Objek</span>
+      <span>Tersedia versi Desktop Java (NetBeans) &amp; Versi Web</span>
+    </div>
+  </footer>
+
+  <script src="web/js/app.js"></script>
+</body>
+</html>
